@@ -106,6 +106,9 @@ public:
                 INPUT_RECORD[1] recordBuf;
                 DWORD eventsRead;
 
+                // temp solution to get it working on windows
+                hStdin = GetStdHandle(STD_INPUT_HANDLE);
+
                 DWORD result = WaitForSingleObject(hStdin, 100);
 
                 if(result == WAIT_TIMEOUT) return '\0';
