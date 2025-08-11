@@ -177,18 +177,25 @@ int main(string[] args)
 
     Terminal.enableRawMode();
     scope(exit) Terminal.disableRawMode();
-    auto a = spawnLinked(&pollKeys);
+    auto poller = spawnLinked(&pollKeys);
 
-    while(true){
-        receive(
-            (KeyEvent e) {
-                editorProcessKeypress(e.key);
-                editorRefreshScreen();
-            },
-            (ResizeEvent e) {
-                editorRefreshScreen();
-            }
-        );
+    try {
+        while(true){
+            receive(
+                (KeyEvent e) {
+                    editorProcessKeypress(e.key);
+                    editorRefreshScreen();
+                },
+                (ResizeEvent e) {
+                    editorRefreshScreen();
+                }
+            );
+        }
+    } catch(Exception e) {
+        Terminal.disableRawMode();
+        writeln("An exception occured: ", e.msg);
+        import core.stdc.stdlib : exit;
+        exit(1);
     }
     return 0;
 }
