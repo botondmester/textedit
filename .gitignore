@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/textedit
+textedit.so
+textedit.dylib
+textedit.dll
+textedit.a
+textedit.lib
+textedit-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst

@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"Kocsis Botond"
+	],
+	"copyright": "Copyright © 2025, Kocsis Botond",
+	"description": "A minimal D application.",
+	"license": "MIT",
+	"name": "textedit"
+}
