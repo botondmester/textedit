@@ -45,8 +45,16 @@ public:
                         frame[y][i + padding] = str[i];
                     }
                 }
+            } else if(y - 1 == rows / 3) {
+                string str = "For usage, refer to README.md";
+                size_t padding = (cols - str.length) / 2;
+                if(padding) frame[y][0] = '~';
+                for(int i = 0; i + padding < cols; ++i) {
+                    if(i < str.length) {
+                        frame[y][i + padding] = str[i];
+                    }
+                }
             } else {
-                import std.conv;
                 frame[y][0] = '~';
             }
         }

@@ -208,8 +208,14 @@ public:
         frame.length = rows - 1; // pad out with empty lines as needed
         import std.format;
         import std.path : baseName;
+        string mode = "";
+        if(inFindMode) mode = "<Search mode>";
         frame ~= cast(char[])format!"\x1b[1;7m%s:%d:%d"(openFilePath.baseName, currLine, currCol);
+        if(frame[$-1].length + mode.length + 1 < this.cols + 6) {
+            frame[$-1] ~= ' ' ~ mode; // only draw mode if it fits
+        }
         while(frame[$-1].length < this.cols + 6) frame[$-1] ~= ' ';
+        frame[$-1].length = this.cols + 6; // make sure it won't draw any character that doesn't fit
         frame[$-1] ~= "\x1b[m";
         return frame;
     }

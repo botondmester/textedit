@@ -12,7 +12,19 @@ The code is not the best quality, nor is it the most readable, but
 I will be working on improving that.
 
 # Usage
-TODO
+Use the arrow keys to move the cursor, Ctrl+Q to quit.
+Use Ctrl+arrow keys to switch between open buffers
+Ctrl+P brings up the command palette, in which you can type commands staring with ':'.
+To close the command palette without executing any command, leave it on ':', and press enter.
+
+These are the currently supported global commands:
+- `:q` same as Ctrl+Q
+- `:c` closes the current buffer without saving
+- `:o <file>` opens the specified file in a new filebuffer, but if it does not exist, it pulls up an empty filebuffer, and when you save, it creates that file with the contents of the buffer
+
+These are the supported commands in a filebuffer:
+- `:f <word>` finds all occurences of the given word and puts you in search mode, in it you can press the arrow keys to cycle through the results and press enter to exit search mode
+- `:s` saves the buffer
 
 # Compiling
 You will need a D compiler and DUB installed.
