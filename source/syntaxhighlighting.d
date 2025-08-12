@@ -6,19 +6,21 @@ import std.regex;
 import std.array;
 
 static immutable dKeywords = [
-    "abstract", "alias", "align", "asm", "assert", "auto",
-    "bool", "break", "byte", "case", "cast", "catch", "char",
-    "class", "const", "continue", "dchar", "debug", "default",
-    "delegate", "deprecated", "do", "double", "else", "enum",
-    "export", "extern", "false", "final", "finally", "float",
-    "for", "foreach", "foreach_reverse", "function", "goto", "if",
-    "immutable", "import", "in", "inout", "int", "interface",
-    "invariant", "is", "lazy", "long", "macro", "mixin", "module",
-    "new", "nothrow", "null", "out", "override", "package",
-    "pragma", "private", "protected", "public", "pure", "real",
-    "ref", "return", "scope", "shared", "short", "static",
-    "struct", "super", "switch", "synchronized", "template",
-    "this", "throw", "true", "try", "typeid", "typeof"
+    "abstract", "alias", "align", "asm", "assert", "auto", "bool", "break",
+    "byte", "case", "cast", "catch", "char", "class", "const", "continue",
+    "dchar", "debug", "default", "delegate", "deprecated", "do", "double",
+    "else", "enum", "export", "extern", "false", "final", "finally", "float",
+    "for", "foreach", "foreach_reverse", "function", "goto", "if", "immutable",
+    "import", "in", "inout", "int", "interface", "invariant", "is", "lazy",
+    "long", "macro", "mixin", "module", "new", "nothrow", "null", "out",
+    "override", "package", "pragma", "private", "protected", "public", "pure",
+    "real", "ref", "return", "scope", "shared", "short", "static", "struct",
+    "super", "switch", "synchronized", "template", "this", "throw", "true",
+    "try", "typeid", "typeof", "ubyte", "uint", "ulong", "union", "unittest",
+    "ushort", "version", "void", "wchar", "while", "with", "__FILE__",
+    "__FILE_FULL_PATH__", "__FUNCTION__", "__LINE__", "__MODULE__",
+    "__PRETTY_FUNCTION__", "__gshared", "__parameters", "__rvalue", "__traits",
+    "__vector"
 ];
 
 enum dKeywordRegex = ctRegex!("\\b(" ~ dKeywords.join("|") ~ ")\\b");
@@ -66,7 +68,7 @@ enum EditorHighlight : char {
 void doHighlighting(ref Row[] fileBuf, string filename) {
     import std.path;
     import std.string;
-    
+
     if(filename.extension() == ".d") {
         dSyntax(fileBuf);
     }
