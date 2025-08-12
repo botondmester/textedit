@@ -123,26 +123,26 @@ public:
             return;
         }
 
-        cursorPosX += x;
-        if(cursorPosX >= cast(int)cols) {
-            cursorPosX = cast(int)cols - 1;
+        cursorPos.x += x;
+        if(cursorPos.x >= cast(int)contentExtent.cols) {
+            cursorPos.x = cast(int)contentExtent.cols - 1;
             updateFilePos(1, 0);
         }
-        if(cursorPosX < 0) {
-            cursorPosX = 0;
+        if(cursorPos.x < 0) {
+            cursorPos.x = 0;
             updateFilePos(-1, 0);
         }
-        cursorPosY += y;
+        cursorPos.y += y;
         if(currLine + 1 > openFileBuffer.length) {
             // TODO: fix
-            cursorPosY--;
+            cursorPos.y--;
         }
-        if(cursorPosY >= cast(int)rows - 1) {
-            cursorPosY = cast(int)rows - 2;
+        if(cursorPos.y >= cast(int)contentExtent.rows - 1) {
+            cursorPos.y = cast(int)contentExtent.rows - 2;
             updateFilePos(0, 1);
         }
-        if(cursorPosY < 0) {
-            cursorPosY = 0;
+        if(cursorPos.y < 0) {
+            cursorPos.y = 0;
             updateFilePos(0, -1);
         }
 
@@ -150,73 +150,87 @@ public:
             currCol > cast(long)openFileBuffer[currLine].length
         ) {
             long diff = currCol - cast(long)openFileBuffer[currLine].length;
-            if(diff > cursorPosX) {
-                diff -= cursorPosX;
-                cursorPosX = 0;
-                filePosX -= diff;
+            if(diff > cursorPos.x) {
+                diff -= cursorPos.x;
+                cursorPos.x = 0;
+                filePos.x -= diff;
             } else {
-                cursorPosX -= diff;
+                cursorPos.x -= diff;
             }
         }
     }
 
     void updateFilePos(int x, int y) {
-        filePosX += x;
+        filePos.x += x;
         if(currLine < openFileBuffer.length &&
-            filePosX >= cast(long)openFileBuffer[currLine].length)
-            filePosX = cast(long)openFileBuffer[currLine].length - 1;
-        if(filePosX < 0) filePosX = 0;
-        filePosY += y;
-        if(filePosY >= cast(long)openFileBuffer.length) filePosY = cast(long)openFileBuffer.length - 1;
-        if(filePosY < 0) filePosY = 0;
+            filePos.x >= cast(long)openFileBuffer[currLine].length)
+            filePos.x = cast(long)openFileBuffer[currLine].length - 1;
+        if(filePos.x < 0) filePos.x = 0;
+        filePos.y += y;
+        if(filePos.y >= cast(long)openFileBuffer.length) filePos.y = cast(long)openFileBuffer.length - 1;
+        if(filePos.y < 0) filePos.y = 0;
     }
 
     void seekFilePos(long line, long col) {
-        if(line > rows/3) {
-            cursorPosY = cast(int)(rows/3);
-            filePosY = cast(int)(line-rows/3);
+        if(line > contentExtent.rows/3) {
+            cursorPos.y = cast(int)(contentExtent.rows/3);
+            filePos.y = cast(int)(line-contentExtent.rows/3);
         } else {
-            cursorPosY = cast(int)line;
-            filePosY = 0;
+            cursorPos.y = cast(int)line;
+            filePos.y = 0;
         }
-        if(col > cols/3) {
-            cursorPosX = cast(int)(cols/3);
-            filePosX = cast(int)(col-cols/3);
+        if(col > contentExtent.cols/3) {
+            cursorPos.x = cast(int)(contentExtent.cols/3);
+            filePos.x = cast(int)(col-contentExtent.cols/3);
         } else {
-            cursorPosX = cast(int)col;
-            filePosX = 0;
+            cursorPos.x = cast(int)col;
+            filePos.x = 0;
         }
     }
 
     Position getCursorPos() {
-        return Position(cursorPosX, cursorPosY);
+        // add offset from line number
+        return Position(cursorPos.x+getLineNumLength(), cursorPos.y);
     }
 
     void updateBufferSize(Extent extent) {
-        this.rows = extent.rows;
-        this.cols = extent.cols;
-        updateCursorPos(0,0);
+        this.fullExtent = extent;
+        contentExtent = Extent(fullExtent.width, fullExtent.height-1);
+        updateCursorPos(0,0); // make sure cursor is in a valid position
     }
 
     char[][] draw() {
+        import std.conv : to;
+        size_t lineNumLength = getLineNumLength();
+        contentExtent.cols = fullExtent.cols - lineNumLength;
         char[][] frame;
-        for(int y = 0; y < rows - 1 && filePosY+y < openFileBuffer.length; y++) {
-            Row line = openFileBuffer[filePosY+y];
+        for(int y = 0; y < contentExtent.rows && filePos.y+y < openFileBuffer.length; y++) {
+            Row line = openFileBuffer[filePos.y+y];
+            char[] renderedLineNum;
+            char[] strLineNum = (filePos.y+y).to!(char[]);
+            renderedLineNum.length = lineNumLength;
+            if(lineNumLength != 0) {
+                renderedLineNum[] = ' ';
+                renderedLineNum[$-1-strLineNum.length..$-1] = strLineNum; // righ justify line number
+            }
 
-            frame ~= line.render(filePosX, this.cols);
+            frame ~= "\x1b[48;5;235m" ~ renderedLineNum ~ "\x1b[m" ~ line.render(filePos.x, contentExtent.cols);
         }
-        frame.length = rows - 1; // pad out with empty lines as needed
+        frame.length = contentExtent.rows; // pad out with empty lines as needed
+
         import std.format;
         import std.path : baseName;
         string mode = "";
         if(inFindMode) mode = "<Search mode>";
+        // draw status bar
         frame ~= cast(char[])format!"\x1b[1;7m%s:%d:%d"(openFilePath.baseName, currLine, currCol);
-        if(frame[$-1].length + mode.length + 1 < this.cols + 6) {
+        // draw mode indicator
+        if(frame[$-1].length + mode.length + 1 < fullExtent.width + 6) {
             frame[$-1] ~= ' ' ~ mode; // only draw mode if it fits
         }
-        while(frame[$-1].length < this.cols + 6) frame[$-1] ~= ' ';
-        frame[$-1].length = this.cols + 6; // make sure it won't draw any character that doesn't fit
-        frame[$-1] ~= "\x1b[m";
+        while(frame[$-1].length < fullExtent.width + 6) frame[$-1] ~= ' ';
+        frame[$-1].length = fullExtent.width + 6; // make sure it won't draw any character that doesn't fit
+        frame[$-1] ~= "\x1b[m"; // reset graphics rendition
         return frame;
     }
 
@@ -316,21 +330,27 @@ public:
     }
 private:
     long currLine() {
-        return filePosY+cursorPosY;
+        return filePos.y+cursorPos.y;
     }
     long currCol() {
-        return filePosX+cursorPosX;
+        return filePos.x+cursorPos.x;
+    }
+    size_t getLineNumLength() {
+        import std.math : ceil, log10;
+        size_t len = cast(size_t)ceil(log10(cast(float)(filePos.y+contentExtent.rows))) + 1;
+        if(len > fullExtent.width / 3) {
+            return 0;
+        } else {
+            return len;
+        }
     }
     bool inFindMode = false;
     long[2][] foundPositions;
     long foundidx = 0;
-
-    long filePosY = 0;
-    long filePosX = 0;
-    int cursorPosX = 0;
-    int cursorPosY = 0;
-    size_t rows = 24;
-    size_t cols = 80;
+    Position filePos;
+    Position cursorPos;
+    Extent fullExtent;
+    Extent contentExtent;
     string openFilePath;
     Row[] openFileBuffer;
     bool dirtyFlag = false;
