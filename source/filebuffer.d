@@ -213,8 +213,11 @@ public:
                 renderedLineNum[] = ' ';
                 renderedLineNum[$-1-strLineNum.length..$-1] = strLineNum; // righ justify line number
             }
-
-            frame ~= "\x1b[48;5;235m" ~ renderedLineNum ~ "\x1b[m" ~ line.render(filePos.x, contentExtent.cols);
+            string graphicsRendition = "\x1b[48;5;235m";
+            if(filePos.y+y == currLine()) {
+                graphicsRendition = "\x1b[48;5;238m";
+            }
+            frame ~= graphicsRendition ~ renderedLineNum ~ "\x1b[m" ~ line.render(filePos.x, contentExtent.cols);
         }
         frame.length = contentExtent.rows; // pad out with empty lines as needed
 
