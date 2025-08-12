@@ -15,17 +15,6 @@ version (Windows) {
     import core.sys.posix.unistd;
 
     termios origTermios;
-
-    bool posix_beenResized = false;
-
-    extern(C) @nogc nothrow
-    void handleSigWinch(int signo)
-    {
-        import core.sys.posix.signal;
-        import core.stdc.stdlib : exit;
-        if (signo == 28) // SIGWINCH
-            posix_beenResized = true;
-    }
 }
 
 bool rawModeEnabled = false;
@@ -67,9 +56,6 @@ public:
             rawMode |= ENABLE_VIRTUAL_TERMINAL_INPUT | ENABLE_WINDOW_INPUT;
             SetConsoleMode(hStdin, rawMode);
         } else version(Posix) {
-            import core.sys.posix.signal;
-            signal(26, &handleSigWinch); // SIGWINCH
-
             tcgetattr(STDIN_FILENO, &origTermios);
 
             termios raw = origTermios;
