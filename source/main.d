@@ -194,6 +194,7 @@ int main(string[] args)
     } catch(Exception e) {
         Terminal.disableRawMode();
         writeln("An exception occured: ", e.msg);
+        debug writeln(e.info);
         import core.stdc.stdlib : exit;
         exit(1);
     }
