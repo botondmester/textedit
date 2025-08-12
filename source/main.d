@@ -59,11 +59,11 @@ void editorRefreshScreen() {
 
     Terminal.write(CmdPalette.draw());
     if(CmdPalette.isActive) {
-        Terminal.writef("\x1b[%d;%dH", Terminal.getWindowSize()[0] + 1, CmdPalette.cursorPos + 1);
+        Terminal.writef("\x1b[%d;%dH", Terminal.getWindowSize().height + 1, CmdPalette.cursorPos + 1);
     } else {
         Terminal.writef("\x1b[%d;%dH",
-            BufferManager.getCursorPos()[0] + 1,
-            BufferManager.getCursorPos()[1] + 1);
+            BufferManager.getCursorPos().row + 1,
+            BufferManager.getCursorPos().col + 1);
     }
     Terminal.write("\x1b[?25h");
     Terminal.flushBuffer();
@@ -106,14 +106,14 @@ EditorKey editorReadKeypress() {
 }
 
 void pollKeys() {
-    int width = 0;
-    int height = 0;
+    long width = 0;
+    long height = 0;
     while(true) {
         EditorKey c = editorReadKeypress();
-        int[2] size = Terminal.getWindowSize();
-        if(size[0] != height || size[1] != width) {
-            height = size[0];
-            width = size[1];
+        auto extent = Terminal.getWindowSize();
+        if(extent.height != height || extent.width != width) {
+            height = extent.height;
+            width = extent.width;
             send(ownerTid, ResizeEvent(width, height));
         }
         send(ownerTid, KeyEvent(c));

@@ -3,10 +3,12 @@ private:
 import terminal;
 public:
 
+import terminal : Extent, Position;
+
 interface IBuffer {
     void updateCursorPos(int x, int y);
-    int[2] getCursorPos();
-    void updateBufferSize(size_t rows, size_t columns);
+    Position getCursorPos();
+    void updateBufferSize(Extent extent);
     char[][] draw();
     bool isDirty();
     bool handleCommand(string[] command);
@@ -19,13 +21,13 @@ public:
 
     }
 
-    int[2] getCursorPos() {
-        return [0, 0];
+    Position getCursorPos() {
+        return Position(0, 0);
     }
 
-    void updateBufferSize(size_t rows, size_t columns) {
-        this.rows = rows;
-        this.cols = columns;
+    void updateBufferSize(Extent extent) {
+        this.rows = extent.rows;
+        this.cols = extent.cols;
     }
     
     char[][] draw() {
@@ -73,13 +75,13 @@ public:
 
     }
 
-    int[2] getCursorPos() {
-        return [0, 0];
+    Position getCursorPos() {
+        return Position(0, 0);
     }
 
-    void updateBufferSize(size_t rows, size_t columns) {
-        this.rows = rows;
-        this.cols = columns;
+    void updateBufferSize(Extent extent) {
+        this.rows = extent.rows;
+        this.cols = extent.cols;
     }
     
     char[][] draw() {

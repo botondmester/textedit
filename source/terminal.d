@@ -32,6 +32,22 @@ bool rawModeEnabled = false;
 
 public:
 
+struct Extent {
+    long width = 0;
+    long height = 0;
+    alias cols = width;
+    alias rows = height;
+    alias x = width;
+    alias y = height;
+}
+
+struct Position {
+    long x = 0;
+    long y = 0;
+    alias col = x;
+    alias row = y;
+}
+
 static class Terminal {
 public:
     static void enableRawMode() {
@@ -146,8 +162,8 @@ public:
         }
     }
 
-    static int[2] getWindowSize() {
-        return [screenrows, screencols];
+    static Extent getWindowSize() {
+        return Extent(screencols, screenrows);
     }
 
     static void write(Char)(in Char[] str) {

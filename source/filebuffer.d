@@ -188,13 +188,13 @@ public:
         }
     }
 
-    int[2] getCursorPos() {
-        return [cursorPosY, cursorPosX];
+    Position getCursorPos() {
+        return Position(cursorPosX, cursorPosY);
     }
 
-    void updateBufferSize(size_t rows, size_t columns) {
-        this.rows = rows;
-        this.cols = columns;
+    void updateBufferSize(Extent extent) {
+        this.rows = extent.rows;
+        this.cols = extent.cols;
         updateCursorPos(0,0);
     }
 

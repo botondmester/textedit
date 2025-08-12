@@ -6,6 +6,7 @@ import terminal;
 
 public:
 import buffer;
+import terminal : Position;
 
 
 static class BufferManager {
@@ -13,19 +14,20 @@ public:
     static IBuffer currBuffer() {
         return buffers[focusedBufferIdx];
     }
-    static size_t[2] getCursorPos() {
-        auto width = Terminal.getWindowSize()[1];
+    static Position getCursorPos() {
+        auto width = Terminal.getWindowSize().width;
 
         auto bufNum = buffers.length;
         auto bufWidth = width / bufNum;
 
-        auto row = currBuffer.getCursorPos()[0];
-        auto col = focusedBufferIdx * bufWidth + currBuffer.getCursorPos()[1];
-        return [row, col];
+        Position pos;
+        pos.row = currBuffer.getCursorPos().row;
+        pos.col = focusedBufferIdx * bufWidth + currBuffer.getCursorPos().col;
+        return pos;
     }
     static void render() {
-        auto height = Terminal.getWindowSize()[0];
-        auto width = Terminal.getWindowSize()[1];
+        auto height = Terminal.getWindowSize().height;
+        auto width = Terminal.getWindowSize().width;
         height--; // leave space for the command palette
 
         auto bufNum = buffers.length;
@@ -37,7 +39,7 @@ public:
         bufFrames.length = bufNum;
         // render each buffer into it's own framebuffer
         for(size_t i = 0; i < bufNum; i++) {
-            buffers[i].updateBufferSize(height, bufWidth);
+            buffers[i].updateBufferSize(Extent(bufWidth, height));
             bufFrames[i] = buffers[i].draw();
             assert(bufFrames[i].length == height);
         }
