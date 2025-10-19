@@ -76,11 +76,17 @@ public:
                 deactivate();
                 return;
             }
+            else if(command[0] == ":t") {
+                import std.file;
+                import filetreebuffer;
+                BufferManager.openBuffer(new FileTreeBuffer(getcwd()));
+                deactivate();
+                return;
+            }
             else {
                 bool success = BufferManager.currBuffer.handleCommand(cast(string[])command);
                 if(!success) {
                     deactivate("Unknown/invalid command");
-                    // TODO tell user that the command is unknown/invalid
                     return;
                 }
                 

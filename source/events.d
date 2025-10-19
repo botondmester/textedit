@@ -1,5 +1,7 @@
 module events;
 
+// TODO: move from std.concurrency to custom eventqueue
+
 enum EditorKey : int
 {
     BACKSPACE = 127,
