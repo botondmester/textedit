@@ -35,7 +35,7 @@ public:
             cursorPos.y = cast(long)bufferContent.length - 1;
         }
         
-        bufferPos.y = cursorPos.y - fullExtent.height / 3;
+        bufferPos.y = cursorPos.y - (fullExtent.height / 5) * 4;
         if(bufferPos.y < 0) {
             bufferPos.y = 0;
         }
@@ -55,14 +55,14 @@ public:
         import std.conv : to;
         char[][] frame;
         for(int y = 0; y < fullExtent.rows - 1; y++) {
-            if(y >= bufferContent.length) {
+            if(y + bufferPos.y >= bufferContent.length) {
                 char[] row;
                 row.length  = fullExtent.width;
                 row[] = ' ';
                 frame ~= row;
                 continue;
             }
-            frame ~= bufferContent[y].render(0, fullExtent.cols);
+            frame ~= bufferContent[y+bufferPos.y].render(0, fullExtent.cols);
         }
         frame.length = fullExtent.rows - 1;
 
@@ -121,6 +121,7 @@ public:
         bufferContent.length = 0;
         dirContent.length = 0;
         bufferContent ~= Row("../");
+        bufferContent[0].highlight(0, 3, EditorHighlight.NUMBER);
         import std.file : dirEntries, SpanMode, DirEntry;
         import std.path : baseName;
         foreach(DirEntry e; dirEntries(openPath, SpanMode.shallow)) {
@@ -132,7 +133,11 @@ public:
         import std.algorithm.sorting : sort;
         sort(dirContent);
         foreach (name; dirContent) {
-            bufferContent ~= Row(name);
+            Row row = Row(name);
+            if(name[$-1] == '/') {
+                row.highlight(0, row.length, EditorHighlight.NUMBER);
+            }
+            bufferContent ~= row;
         }
     }
 private:
