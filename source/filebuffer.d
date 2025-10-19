@@ -59,7 +59,15 @@ public:
                 ret ~= color;
                 currColor = color;
             }
-            ret ~= data[i];
+            if(data[i] == '\t') {
+                for(int j = 0; j < 4-(i%4); j++) {
+                    ret ~= ' ';
+                    len--;
+                };
+                len++;
+            } else {
+                ret ~= data[i];
+            }
         }
         // reset color if needed
         if(currColor != "\x1b[m") {

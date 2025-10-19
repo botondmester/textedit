@@ -142,7 +142,6 @@ public:
                 ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws);
                 screencols = ws.ws_col;
                 screenrows = ws.ws_row;
-                posix_beenResized = false;
             }
             return c;
         }
